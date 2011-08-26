@@ -1,0 +1,31 @@
+= adapter-git
+
+Git adapter for adapter gem.
+
+    require 'adapter/git'
+
+    repo = Grit::Repo.init('path/to/repo')
+    adapter = Adapter[:git].new(repo)
+    adapter.clear
+
+    adapter.write('foo', 'bar')
+    puts 'Should be bar: ' + adapter.read('foo').inspect
+
+    adapter.delete('foo')
+    puts 'Should be nil: ' + adapter.read('foo').inspect
+
+    adapter.write('foo', 'bar')
+    adapter.clear
+    puts 'Should be nil: ' + adapter.read('foo').inspect
+
+    puts 'Should be bar: ' + adapter.fetch('foo', 'bar')
+
+See examples/ or specs/ for more usage.
+
+== Note on Patches/Pull Requests
+
+* Fork the project.
+* Make your feature addition or bug fix.
+* Add tests for it. This is important so we don't break it in a future version unintentionally.
+* Commit, do not mess with Rakefile, version, or history. (if you want to have your own version, that is fine, but bump version in a commit by itself so we can ignore when we pull)
+* Send us a pull request. Bonus points for topic branches.
