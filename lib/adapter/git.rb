@@ -4,8 +4,12 @@ require 'grit'
 
 module Adapter
   module Git
+    def branch
+      options[:branch] || 'master'
+    end
+
     def head
-      client.get_head(options[:branch] || 'master')
+      client.get_head(branch)
     end
 
     def key?(key)
@@ -58,7 +62,9 @@ module Adapter
 
       yield index
 
-      index.commit(message, Array(commit))
+      sha = index.commit(message, Array(commit))
+
+      client.update_ref(branch, sha) unless head
     end
 
   end
