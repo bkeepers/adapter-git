@@ -62,9 +62,7 @@ module Adapter
 
       yield index
 
-      sha = index.commit(message, Array(commit))
-
-      client.update_ref(branch, sha) unless head
+      index.commit(message, :parents => Array(commit), :head => branch)
     end
 
   end

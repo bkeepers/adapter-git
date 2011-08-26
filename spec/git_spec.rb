@@ -3,7 +3,7 @@ require 'grit'
 
 describe "Git adapter" do
   let(:repo_dir) { File.expand_path('../test-repo', __FILE__) }
-  let(:adapter)  { Adapter[:git].new(client) }
+  let(:adapter)  { Adapter[:git].new(client, :branch => 'adapter-git') }
   let(:client)   { Grit::Repo.init(repo_dir) }
 
   before do
@@ -21,5 +21,11 @@ describe "Git adapter" do
     adapter.options[:branch] = 'foobar'
     adapter.set('foo', 'bar')
     client.get_head('foobar').should_not be_nil
+  end
+
+  it 'should successfully delete a key' do
+    adapter.set('foo', 'bar')
+    adapter.delete('foo')
+    adapter.get('foo').should be_nil
   end
 end
