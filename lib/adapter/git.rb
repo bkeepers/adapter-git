@@ -36,8 +36,10 @@ module Adapter
 
     def clear
       commit("Cleared") do |index|
-        index.current_tree.contents.each do |entry|
-          index.delete(entry.name)
+        tree = index.current_tree
+        tree = tree / options[:path] if options[:path]
+        tree.contents.each do |entry|
+          index.delete(key_for(entry.name))
         end
       end
     end
@@ -48,6 +50,10 @@ module Adapter
 
     def decode(value)
       YAML.load(value)
+    end
+
+    def key_for(key)
+      File.join(*[options[:path], super].compact)
     end
 
   private

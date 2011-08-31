@@ -5,7 +5,7 @@ Git adapter for adapter gem.
     require 'adapter/git'
 
     repo = Grit::Repo.init('path/to/repo')
-    adapter = Adapter[:git].new(repo)
+    adapter = Adapter[:git].new(repo, :branch => 'data', :path => 'db/records')
     adapter.clear
 
     adapter.write('foo', 'bar')

@@ -28,4 +28,30 @@ describe "Git adapter" do
     adapter.delete('foo')
     adapter.get('foo').should be_nil
   end
+
+  context 'with the path option' do
+    before do
+      adapter.options[:path] = 'db/things'
+    end
+
+    it_should_behave_like 'an adapter'
+
+    it 'should store keys in the directory' do
+      adapter.set('foo', 'bar')
+      (adapter.head.commit.tree / 'foo').should be_nil
+      (adapter.head.commit.tree / 'db/things/foo').should_not be_nil
+    end
+
+    it 'should not clear other keys' do
+      other_adapter = Adapter[:git].new(client, :branch => 'adapter-git')
+      other_adapter.set('foo', 'bar')
+
+      adapter.set('foo', 'baz')
+      adapter.clear
+
+      other_adapter.get('foo').should == 'bar'
+      adapter.get('foo').should be_nil
+    end
+  end
+
 end
