@@ -23,6 +23,11 @@ describe "Git adapter" do
     client.get_head('foobar').should_not be_nil
   end
 
+  it 'should not raise error on clear when branch does not exist' do
+    client.git.fs_delete("refs/heads/#{adapter.branch}")
+    lambda { adapter.clear }.should_not raise_error
+  end
+
   it 'should successfully delete a key' do
     adapter.set('foo', 'bar')
     adapter.delete('foo')
@@ -52,6 +57,10 @@ describe "Git adapter" do
       other_adapter.get('foo').should == 'bar'
       adapter.get('foo').should be_nil
     end
-  end
 
+    it 'should not raise error on clear when branch does not exist' do
+      client.git.fs_delete("refs/heads/#{adapter.branch}")
+      lambda { adapter.clear }.should_not raise_error
+    end
+  end
 end

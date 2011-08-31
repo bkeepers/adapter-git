@@ -37,9 +37,11 @@ module Adapter
     def clear
       commit("Cleared") do |index|
         tree = index.current_tree
-        tree = tree / options[:path] if options[:path]
-        tree.contents.each do |entry|
-          index.delete(key_for(entry.name))
+        tree = tree / options[:path] if options[:path] && tree
+        if tree
+          tree.contents.each do |entry|
+            index.delete(key_for(entry.name))
+          end
         end
       end
     end
