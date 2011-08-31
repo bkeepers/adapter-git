@@ -34,6 +34,13 @@ describe "Git adapter" do
     adapter.get('foo').should be_nil
   end
 
+  it 'should not generate a commit message if there are no changes' do
+    adapter.clear
+    head = adapter.head.commit
+    adapter.clear
+    adapter.head.commit.id.should == head.id
+  end
+
   context 'with the path option' do
     before do
       adapter.options[:path] = 'db/things'

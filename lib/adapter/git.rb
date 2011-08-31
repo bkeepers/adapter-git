@@ -70,7 +70,7 @@ module Adapter
 
       yield index
 
-      index.commit(message, :parents => Array(commit), :head => branch)
+      index.commit(message, :parents => Array(commit), :head => branch) unless index.tree.empty?
     end
 
   end
