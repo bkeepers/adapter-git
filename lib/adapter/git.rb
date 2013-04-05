@@ -8,34 +8,36 @@ module Adapter
       options[:branch] || 'master'
     end
 
-    def head
-      client.get_head(branch)
+    def head(head_branch = nil)
+      client.get_head(head_branch || branch)
     end
 
     def key?(key, options = nil)
-      !(head && head.commit.tree / key_for(key)).nil?
+      key_head = head(options ? options[:branch] : nil)
+      !(key_head && key_head.commit.tree / key_for(key)).nil?
     end
 
     def read(key, options = nil)
-      if head && blob = head.commit.tree / key_for(key)
+      read_head = head(options ? options[:branch] : nil)
+      if read_head && blob = read_head.commit.tree / key_for(key)
         decode(blob.data)
       end
     end
 
     def write(key, value, options = nil)
-      commit("Updated #{key}") do |index|
+      commit("Updated #{key}", options) do |index|
         index.add(key_for(key), encode(value))
       end
     end
 
     def delete(key, options = nil)
       read(key).tap do
-        commit("Delete #{key}") {|index| index.delete(key_for(key)) }
+        commit("Delete #{key}", options) {|index| index.delete(key_for(key)) }
       end
     end
 
     def clear(options = nil)
-      commit("Cleared") do |index|
+      commit("Cleared", options) do |index|
         tree = index.current_tree
         tree = tree / self.options[:path] if self.options[:path] && tree
         if tree
@@ -60,17 +62,30 @@ module Adapter
 
   private
 
-    def commit(message)
+    def commit(message, options)
+      options ||= {}
+
       index = client.index
 
-      if head
-        commit = head.commit
+      commit_branch = options[:branch] || branch
+      if commit_head = head(commit_branch)
+        commit = commit_head.commit
         index.current_tree = commit.tree
       end
 
       yield index
 
-      index.commit(message, :parents => Array(commit), :head => branch) unless index.tree.empty?
+      message = options[:message] || message
+      commit_options = make_commit_options(commit, commit_branch, options)
+      index.commit(message, commit_options) unless index.tree.empty?
+    end
+
+    def make_commit_options(commit, head, options)
+      commit_options = { :parents => Array(commit), :head => head }
+      [:actor, :committer, :author, :committed_date, :authored_date].each do |k|
+        commit_options[k] = options[k] if options.has_key?(k)
+      end
+      commit_options
     end
 
     def serialize_key(key)
