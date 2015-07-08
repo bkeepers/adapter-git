@@ -14,7 +14,5 @@ log_path  = root_path.join('log')
 log_path.mkpath
 
 require 'adapter/spec/an_adapter'
-require 'adapter/spec/json_adapter'
-require 'adapter/spec/types'
 
 require 'adapter-git'
